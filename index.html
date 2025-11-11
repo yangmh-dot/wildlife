@@ -3,129 +3,108 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI 動物短片提示產生器 v2.5（掠食者驚慌版）</title>
+<title>AI 動物短片提示產生器 v2.7（真實動物多劇情版）</title>
 <style>
-body{font-family:'Noto Sans TC',sans-serif;background:#0b0b0c;color:#e9eef3;margin:0;padding:0}
-header{background:#111316;padding:16px;border-bottom:1px solid #222}
-h1{margin:0;font-size:20px}
-main{padding:16px;max-width:900px;margin:auto}
-.card{background:#15161a;padding:14px;margin:10px 0;border-radius:16px;border:1px solid #222}
-select,input,button,textarea{width:100%;font-family:inherit;background:#0f1114;color:#e9eef3;border:1px solid #2b3340;border-radius:10px;padding:8px;margin:4px 0}
-button{cursor:pointer}
-.primary{background:linear-gradient(135deg,#0891b2,#2563eb);color:#fff;border:none}
-textarea{height:260px}
+body {
+  font-family: "Noto Sans TC", sans-serif;
+  background: #0b0b0c;
+  color: #e9eef3;
+  margin: 0;
+  padding: 0;
+}
+header {
+  background: #111316;
+  padding: 16px;
+  border-bottom: 1px solid #222;
+}
+h1 { margin: 0; font-size: 20px; }
+main { padding: 16px; max-width: 900px; margin: auto; }
+.card {
+  background: #15161a;
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 16px;
+  border: 1px solid #222;
+}
+button {
+  width: 100%;
+  font-family: inherit;
+  background: linear-gradient(135deg, #0891b2, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+textarea {
+  width: 100%;
+  height: 340px;
+  background: #0f1114;
+  color: #e9eef3;
+  border: 1px solid #2b3340;
+  border-radius: 10px;
+  padding: 10px;
+}
 </style>
 </head>
 <body>
-<header><h1>🐾 AI 動物短片提示產生器 v2.5（掠食者驚慌版）</h1></header>
+<header><h1>🐾 AI 動物短片提示產生器 v2.7（真實多劇情版）</h1></header>
 <main>
 <div class="card">
-<label>模式 Mode</label>
-<select id="mode">
-<option value="wildlife" selected>🦁 野外驚險模式 (Wildlife Action)</option>
-<option value="pet">🧸 寵物玩具模式 (Pet & Toy)</option>
-</select>
-
-<label>類別 Category</label>
-<select id="category"></select>
-
-<label>語氣與情緒 Tone & Mood</label>
-<select id="tone"></select>
-
-<label>動作強度 Action Intensity</label>
-<select id="intensity">
-<option>Mild</option>
-<option>Normal</option>
-<option selected>Extreme</option>
-</select>
-
-<label>動物（以逗號分隔）</label>
-<input id="animals" placeholder="例如：jaguar, golden retriever">
-
-<button id="gen" class="primary">⚡ 產生 Prompt</button>
-<button id="copy">📋 複製</button>
-<button id="save">⬇️ 下載 TXT</button>
+  <button id="gen">⚡ 一鍵生成三組真實動物 Prompt</button>
 </div>
-
 <div class="card">
-<label>輸出結果 (英文 Prompt)</label>
-<textarea id="out" placeholder="Your cinematic English prompt will appear here..."></textarea>
+  <label>輸出結果（英文 Prompt，可直接貼入 Sora2）</label>
+  <textarea id="out" placeholder="Your cinematic prompts will appear here..."></textarea>
 </div>
 </main>
 
 <script>
-const data={
- wildlife:{
-  tones:["Dramatic","Epic","Tense"],
-  categories:{
-   "Predator Hunt":"A {PRED} charges through the {BIOME}, chasing {PREY} in cinematic slow motion, dust swirling under golden light.",
-   "Predator Ambush":"Hidden in tall grass near the {BIOME}, {PRED} leaps toward {PREY}, camera tracks low and fast as debris flies.",
-   "River Attack":"At the edge of the {BIOME}, {PRED} bursts from water toward {PREY}, droplets glittering as the camera pans close.",
-   "Predator Panic":"Morning sunlight shimmers on a quiet backyard pool where a {PET} relaxes near the water. From behind the hedge, a {PRED} slowly emerges, muscles tightening, eyes fixed on the {PET} as the camera tracks low through the warm glare. The {PET} suddenly leaps up and barks — the {PRED} flinches, loses footing on the wet tiles, and scrambles backward, crashing into a chair before sprinting off as the camera shakes in handheld slow motion. Perfect for a 10-second vertical cinematic shot."
-  },
-  defaultAnimals:"jaguar, golden retriever"
- },
- pet:{
-  tones:["Cute","Playful","Comedic"],
-  categories:{
-   "Toy Antics":"A {PET1} chases a squeaky toy across the floor as {PET2} spins beside it, camera pans close capturing each motion. Perfect for a 10-second vertical cinematic shot.",
-   "Mini Adventure":"A {PET1} rides a toy car while {PET2} waves a tiny flag, both moving in gentle slow motion. Perfect for a 10-second vertical cinematic shot."
-  },
-  defaultAnimals:"cat, golden retriever"
- }
-};
+function sample(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
-function populate(mode){
- const m=data[mode];
- const c=document.getElementById('category'),t=document.getElementById('tone');
- c.innerHTML="";Object.keys(m.categories).forEach(k=>{let o=document.createElement('option');o.textContent=k;o.value=k;c.appendChild(o)});
- t.innerHTML="";m.tones.forEach(x=>{let o=document.createElement('option');o.textContent=x;if(x==='Dramatic')o.selected=true;t.appendChild(o)});
- document.getElementById('animals').value=m.defaultAnimals;
-}
-let mode='wildlife';populate(mode);
-document.getElementById('mode').onchange=e=>{mode=e.target.value;populate(mode)};
+const templates=[
+`Morning sunlight glimmers on a backyard pool where a {PET} rests quietly. 
+From behind the bushes, a {PRED} approaches cautiously, the camera tracking low through flickering light. 
+The {PET} suddenly stands and barks; startled, the {PRED} slips on the wet tiles and scrambles away in panic. 
+Perfect for a 10-second vertical cinematic shot.`,
 
-function sample(a){return a[Math.floor(Math.random()*a.length)]}
+`Soft daylight reflects on a calm riverbank where a {PET} drinks from the water. 
+A {PRED} prowls closer from the reeds, muscles tense as the camera pans low. 
+The {PET} splashes water suddenly; the {PRED} jumps back, loses balance, and tumbles into the river before bolting away dripping wet. 
+Perfect for a 10-second vertical cinematic shot.`,
 
-function enhance(scene,intensity){
- if(intensity==='Extreme'){
-   scene=scene.replace(/flinches|loses|scrambles|sprints|bolts/g,x=>{
-     const m={flinches:'panics',loses:'slips violently',scrambles:'flails backward',sprints:'dashes wildly',bolts:'smashes through bushes'};return m[x]||x;
-   });
-   scene+=" The camera lingers as echoes fade and dust swirls.";
- }
- return scene;
-}
+`Golden dust floats over a small farmyard where chickens wander near a fence. 
+A {PRED} sneaks in, eyes glowing, moving low as tension builds. 
+Suddenly the rooster flaps and crows; the {PRED} panics, trips over a bucket, and runs off as feathers fly in slow motion. 
+Perfect for a 10-second vertical cinematic shot.`,
 
-function build(o){
- const m=data[o.mode];const biome='backyard';let tone=o.tone;const intensity=o.intensity;
- const preds=['jaguar','leopard','fox','hyena','coyote'];
- const pets=['golden retriever','husky','corgi'];
- const PRED=sample(preds),PET=sample(pets);
- let scene=m.categories[o.category];
- scene=scene.replaceAll('{PRED}',PRED).replaceAll('{PREY}','prey').replaceAll('{PET}',PET).replaceAll('{PET1}',PET).replaceAll('{PET2}','cat').replaceAll('{BIOME}',biome);
- scene=enhance(scene,intensity);
- const captions=["When the hunter becomes the hunted 😂","This dog didn’t even flinch 😎","POV: You picked the wrong backyard.","Instant karma for the predator 🐾","He just wanted a sip of water 💦"];
- const titles={
-  'Epic':['Savanna Fury','Legend Awakens','Unstoppable Chase'],
-  'Tense':['Edge of Survival','Close Call','On the Brink'],
-  'Dramatic':['The Clash','Wild Retreat','Backyard Showdown'],
-  'Cute':['Playtime Joy','Tiny Legends','Sunny Chaos']
- }[tone]||['Wild Moment','The Encounter','Nature Clash'];
- return `Prompt:\n${scene}\n\nTitle ideas:\n1. ${titles[0]}\n2. ${titles[1]}\n3. ${titles[2]}\n\nYouTube Caption Suggestion:\n${sample(captions)}`;
+`Sunlight filters through the forest edge where a {PET} naps among leaves. 
+A {PRED} creeps along a branch, camera tracking upward through drifting dust. 
+The branch cracks; the {PRED} falls, hits the ground, and scrambles away as the {PET} stares in confusion. 
+Perfect for a 10-second vertical cinematic shot.`,
+
+`Wind blows across wide desert dunes as a {PRED} prowls confidently near a resting {PET}. 
+The sand shifts beneath its paws; the {PRED} slips, rolls down the dune, and lands in front of the startled {PET}, then flees awkwardly. 
+Perfect for a 10-second vertical cinematic shot.`
+];
+
+const preds=["jaguar","leopard","hyena","fox","coyote"];
+const pets=["golden retriever","husky","corgi","cat","rooster"];
+
+function buildPrompt(){
+  let chosen=[];
+  for(let i=0;i<3;i++){
+    let tpl=sample(templates);
+    const PRED=sample(preds),PET=sample(pets);
+    tpl=tpl.replaceAll("{PRED}",PRED).replaceAll("{PET}",PET);
+    chosen.push(tpl.trim());
+  }
+  return chosen.join("\\n\\n---\\n\\n");
 }
 
-document.getElementById('gen').onclick=()=>{
- const toneSel=document.getElementById('tone').value;
- const intensitySel=document.getElementById('intensity').value;
- let tone=toneSel;if(intensitySel==='Extreme')tone='Dramatic';
- const o={mode,tone,animals:document.getElementById('animals').value,category:document.getElementById('category').value,intensity:intensitySel};
- document.getElementById('out').value=build(o);
-};
-document.getElementById('copy').onclick=async()=>{await navigator.clipboard.writeText(document.getElementById('out').value);alert('已複製英文 Prompt');};
-document.getElementById('save').onclick=()=>{
- const blob=new Blob([document.getElementById('out').value],{type:'text/plain'});
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='animal_prompt.txt';a.click();
+document.getElementById("gen").onclick=()=>{
+  document.getElementById("out").value=buildPrompt();
 };
 </script>
 </body>
