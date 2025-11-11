@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI 動物短片提示產生器 v2.7（真實動物多劇情版）</title>
+<title>AI 動物短片提示產生器 v2.7（真實多劇情版）</title>
 <style>
 body {
   font-family: "Noto Sans TC", sans-serif;
@@ -53,6 +53,7 @@ textarea {
 <main>
 <div class="card">
   <button id="gen">⚡ 一鍵生成三組真實動物 Prompt</button>
+  <button id="copy">📋 複製全部</button>
 </div>
 <div class="card">
   <label>輸出結果（英文 Prompt，可直接貼入 Sora2）</label>
@@ -100,11 +101,17 @@ function buildPrompt(){
     tpl=tpl.replaceAll("{PRED}",PRED).replaceAll("{PET}",PET);
     chosen.push(tpl.trim());
   }
-  return chosen.join("\\n\\n---\\n\\n");
+  // 每段以單行分隔線分開
+  return chosen.join("\n---\n");
 }
 
 document.getElementById("gen").onclick=()=>{
   document.getElementById("out").value=buildPrompt();
+};
+
+document.getElementById("copy").onclick=async()=>{
+  await navigator.clipboard.writeText(document.getElementById("out").value);
+  alert("已複製全部 Prompt！");
 };
 </script>
 </body>
