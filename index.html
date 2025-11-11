@@ -1,297 +1,137 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AI 動物短片提示產生器 v2.2</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 動物短片提示產生器 v2.4（完播黑科技版）</title>
 <style>
-:root{--bg:#0b0b0c;--card:#15161a;--ink:#e9eef3;--muted:#a7b0ba;--accent:#7dd3fc}
-*{box-sizing:border-box;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,'Noto Sans TC',sans-serif}
-body{margin:0;background:linear-gradient(180deg,#0b0b0c,#101215);color:var(--ink)}
-header{padding:16px;position:sticky;top:0;background:rgba(11,11,12,.85);backdrop-filter:saturate(150%) blur(8px);border-bottom:1px solid #1f2937}
-h1{margin:0;font-size:20px;letter-spacing:.2px}
-main{padding:16px;max-width:980px;margin:0 auto}
-.card{background:#15161a;border:1px solid #262b36;border-radius:18px;padding:14px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:760px){.row{grid-template-columns:1fr}}
-label{font-size:13px;color:var(--muted);display:block;margin:8px 0 6px}
-select,input[type="text"]{width:100%;padding:10px 12px;background:#0f1114;border:1px solid #2b3340;border-radius:12px;color:var(--ink)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid #2b3340;background:#0f1114;color:var(--ink);padding:10px 14px;border-radius:12px;cursor:pointer}
-.btn.primary{background:linear-gradient(135deg,#0891b2,#2563eb);border-color:transparent}
-.btn:active{transform:translateY(1px)}
-.chip{display:inline-block;padding:6px 10px;background:#0f1114;border:1px solid #2b3340;border-radius:999px;font-size:12px;margin:4px 6px 0 0;color:var(--muted)}
-textarea{width:100%;min-height:240px;background:#0b0d10;color:#e5eef7;border:1px solid #2b3340;border-radius:14px;padding:12px;line-height:1.5}
-.notice{font-size:12px;color:#a1a1aa}
-.thumb{width:100%;max-height:200px;object-fit:cover;border-radius:12px;border:1px solid #2b3340;margin-top:8px}
-.flex{display:flex;gap:8px;flex-wrap:wrap}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-@media (max-width:760px){.grid-3{grid-template-columns:1fr}}
-.small{font-size:12px;color:#9aa3ad}
+body{font-family:'Noto Sans TC',sans-serif;background:#0b0b0c;color:#e9eef3;margin:0;padding:0}
+header{background:#111316;padding:16px;border-bottom:1px solid #222}
+h1{margin:0;font-size:20px}
+main{padding:16px;max-width:900px;margin:auto}
+.card{background:#15161a;padding:14px;margin:10px 0;border-radius:16px;border:1px solid #222}
+select,input,button,textarea{width:100%;font-family:inherit;background:#0f1114;color:#e9eef3;border:1px solid #2b3340;border-radius:10px;padding:8px;margin:4px 0}
+button{cursor:pointer}
+.primary{background:linear-gradient(135deg,#0891b2,#2563eb);color:#fff;border:none}
+textarea{height:260px}
 </style>
 </head>
 <body>
-<header>
-  <h1>🐾 AI 動物短片提示產生器 <span class="chip">v2.2 • 繁中介面 / 英文輸出</span></h1>
-  <div class="small">固定 10 秒、9:16。生成英文一段式 Prompt + 3 個英文標題（依語氣變化）。</div>
-</header>
+<header><h1>🐾 AI 動物短片提示產生器 v2.4（完播黑科技版）</h1></header>
 <main>
-  <section class="card">
-    <div class="row">
-      <div>
-        <label>模式</label>
-        <select id="mode">
-          <option value="wildlife" selected>🦁 野外驚險模式 (Wildlife Action)</option>
-          <option value="pet">🧸 寵物玩具模式 (Pet & Toy)</option>
-        </select>
+<div class="card">
+<label>模式 Mode</label>
+<select id="mode">
+<option value="wildlife" selected>🦁 野外驚險模式 (Wildlife Action)</option>
+<option value="pet">🧸 寵物玩具模式 (Pet & Toy)</option>
+</select>
 
-        <label>類別（中文顯示 / 英文生成）</label>
-        <select id="category"></select>
+<label>類別 Category</label>
+<select id="category"></select>
 
-        <label>語氣與情緒</label>
-        <select id="tone"></select>
+<label>語氣與情緒 Tone & Mood</label>
+<select id="tone"></select>
 
-        <label>動物（以逗號分隔）</label>
-        <input id="animals" type="text" placeholder="例如：buffalo, lions, calf / cat, golden retriever" />
+<label>動作強度 Action Intensity</label>
+<select id="intensity">
+<option>Mild</option>
+<option selected>Normal</option>
+<option>Extreme</option>
+</select>
 
-        <label>生物群落 / 地點</label>
-        <select id="biome"></select>
-      </div>
-      <div>
-        <div class="grid-3">
-          <div>
-            <label>影片長度</label>
-            <input value="固定 10 秒" disabled />
-          </div>
-          <div>
-            <label>畫面比例</label>
-            <input value="固定 9:16 直式" disabled />
-          </div>
-          <div>
-            <label>輸出語言</label>
-            <input value="English" disabled />
-          </div>
-        </div>
+<label>動物（以逗號分隔）</label>
+<input id="animals" placeholder="例如：jaguar, golden retriever">
 
-        <div class="flex" style="margin-top:10px">
-          <label class="chip"><input id="ambient" type="checkbox" checked /> 環境音效</label>
-          <label class="chip"><input id="music" type="checkbox" /> 背景音樂</label>
-        </div>
+<button id="gen" class="primary">⚡ 產生 Prompt</button>
+<button id="copy">📋 複製</button>
+<button id="save">⬇️ 下載 TXT</button>
+</div>
 
-        <label style="margin-top:10px;">上傳圖片自動偵測動物（瀏覽器端）</label>
-        <input id="img" type="file" accept="image/*" />
-        <img id="thumb" class="thumb" style="display:none" alt="preview" />
-        <div class="notice">若模型載入失敗，可直接手動輸入動物名稱。</div>
-      </div>
-    </div>
-
-    <div class="flex" style="margin-top:14px">
-      <button id="gen" class="btn primary">⚡ 產生</button>
-      <button id="copy" class="btn">📋 複製</button>
-      <button id="save" class="btn">⬇️ 下載 TXT</button>
-      <button id="reset" class="btn">♻️ 重設</button>
-    </div>
-  </section>
-
-  <section class="card">
-    <label>輸出結果（英文 Prompt + 標題建議）</label>
-    <textarea id="out" spellcheck="false" placeholder="English prompt & title ideas will appear here..."></textarea>
-  </section>
+<div class="card">
+<label>輸出結果 (英文 Prompt)</label>
+<textarea id="out" placeholder="Your cinematic English prompt will appear here..."></textarea>
+</div>
 </main>
 
 <script>
-// ---------- Dictionaries (UI zh-TW -> internal en) ----------
-const MAP = {
-  wildlife: {
-    categories: [
-      ["掠食狩獵", "Predator Hunt"],
-      ["潛行伏擊", "Predator Ambush"],
-      ["河岸攻擊", "River Attack"],
-      ["庭院遭遇", "Backyard Encounter"]
-    ],
-    tones: [
-      ["史詩級張力", "Epic"],
-      ["緊張懸疑", "Tense"],
-      ["戲劇衝突", "Dramatic"]
-    ],
-    biomes: [
-      ["非洲草原", "African savanna"],
-      ["河畔水坑", "Riverbank watering hole"],
-      ["家庭庭院野區", "Backyard wilderness zone"]
-    ],
-    defaultAnimals: "buffalo, lions, calf"
+const data={
+ wildlife:{
+  tones:["Dramatic","Epic","Tense"],
+  categories:{
+   "Predator Hunt":"A {PRED} charges through the {BIOME}, chasing {PREY} in cinematic slow motion, dust swirling under golden light.",
+   "Predator Ambush":"Hidden in tall grass near the {BIOME}, {PRED} leaps toward {PREY}, camera tracks low and fast as debris flies.",
+   "River Attack":"At the edge of the {BIOME}, {PRED} bursts from water toward {PREY}, droplets glittering as the camera pans close.",
+   "Yard Encounter":"Sunlight flashes across the pool as the camera jolts; a {PET} lounges beside the water. From behind the hedge, a {PRED} lunges forward, eyes fixed on the {PET}. It seems calm for a heartbeat—then the {PET} barks sharply, water splashes, and the {PRED} slips, crashes back, and bolts through the fence. Cut to a close-up as dust swirls; the camera lingers in slow motion. Perfect for a 10-second vertical cinematic shot."
   },
-  pet: {
-    categories: [
-      ["玩具騷動", "Toy Antics"],
-      ["迷你冒險", "Mini Adventure"],
-      ["可愛惡作劇", "Cute Prank"]
-    ],
-    tones: [
-      ["可愛", "Cute"],
-      ["搞笑", "Comedic"],
-      ["朝氣", "Playful"]
-    ],
-    biomes: [
-      ["溫馨客廳", "cozy living room"],
-      ["亮面廚房地板", "kitchen floor"],
-      ["後院草地", "backyard lawn"]
-    ],
-    defaultAnimals: "cat, golden retriever"
-  }
-};
-
-// Templates for scenes (English), camera phrases auto-injected
-const TPL = {
-  wildlife: {
-    "Predator Hunt": [
-      "A {PRED} bursts from tall grass and chases {PREY} across the {BIOME}, camera tracks low and fast, dust glowing in cinematic slow motion under golden light.",
-      "{PRED} close the gap on {PREY} over the {BIOME}, feet pounding as the lens whips past ground-level brush in slow motion."
-    ],
-    "Predator Ambush": [
-      "Hidden in reeds at the {BIOME}, {PRED} explode toward {PREY} as the camera snaps to a tight close-up, debris flashing in slow motion.",
-      "From shadow to sun, {PRED} lunge at {PREY} beside the {BIOME}, handheld shot surging forward in dramatic slow motion."
-    ],
-    "River Attack": [
-      "At the edge of the {BIOME}, {PRED} surge from mud toward {PREY}, water sprays across the lens while the shot drifts low in slow motion.",
-      "Whitewater erupts as {PRED} strike at {PREY} near the {BIOME}, camera glides inches above the surface in cinematic slow motion."
-    ],
-    "Backyard Encounter": [
-      "A curious {PRED} prowls into a suburban {BIOME}, pets scatter as the camera pans close around fences and grass in playful slow motion.",
-      "{PRED} steps from shadows into a lit {BIOME}, the lens follows tight and steady, turning everyday turf into a tense stage."
-    ]
+  defaultAnimals:"jaguar, golden retriever"
+ },
+ pet:{
+  tones:["Cute","Playful","Comedic"],
+  categories:{
+   "Toy Antics":"A {PET1} chases a squeaky toy across the floor as {PET2} spins beside it, camera pans close capturing each motion. Perfect for a 10-second vertical cinematic shot.",
+   "Mini Adventure":"A {PET1} rides a toy car while {PET2} waves a tiny flag, both moving in gentle slow motion. Perfect for a 10-second vertical cinematic shot."
   },
-  pet: {
-    "Toy Antics": [
-      "A {PET1} chases a squeaky toy while a {PET2} skids after it, camera pans close as sunlight flickers across the floor in gentle slow motion."
-    ],
-    "Mini Adventure": [
-      "A {PET1} rides a toy car past pillow obstacles while {PET2} waves a tiny flag, handheld shot capturing cheerful slow motion."
-    ],
-    "Cute Prank": [
-      "A {PET1} sneaks behind a robot vacuum with a foam sword as {PET2} watches, the lens tilts in playful slow motion."
-    ]
-  }
+  defaultAnimals:"cat, golden retriever"
+ }
 };
 
-// Tone keyword pools for title ideas
-const TITLE = {
-  Epic: ["Fury", "Glory", "Legend", "Unstoppable", "Rising", "Awakening"],
-  Tense: ["Edge", "Close Call", "Last Stand", "Tension", "Near Miss", "On the Brink"],
-  Dramatic: ["Clash", "Twist", "Reversal", "Storm", "Collision", "Turning Point"],
-  Cute: ["Cuteness", "Snuggles", "Sweet Chaos", "Tiny Legend", "Heart Melt"],
-  Comedic: ["Toy Trouble", "Goofball", "Silly Chase", "Laugh Track", "Oops"],
-  Playful: ["Playtime", "Sunny Joy", "Happy Sprint", "Wiggle Dance", "Little Adventure"]
-};
-
-// Simple helpers
-function el(id){return document.getElementById(id)}
-function sample(arr){return arr[Math.floor(Math.random()*arr.length)]}
-
-// Populate selects in zh-TW
 function populate(mode){
-  const cfg = MAP[mode];
-  // category
-  el('category').innerHTML="";
-  cfg.categories.forEach(([zh,en])=>{
-    const o=document.createElement('option'); o.textContent=zh; o.value=en; el('category').appendChild(o);
-  });
-  // tone
-  el('tone').innerHTML="";
-  cfg.tones.forEach(([zh,en])=>{
-    const o=document.createElement('option'); o.textContent=zh; o.value=en; el('tone').appendChild(o);
-  });
-  // biome
-  el('biome').innerHTML="";
-  cfg.biomes.forEach(([zh,en])=>{
-    const o=document.createElement('option'); o.textContent=zh; o.value=en; el('biome').appendChild(o);
-  });
-  // animals default
-  el('animals').value = cfg.defaultAnimals;
+ const m=data[mode];
+ const c=document.getElementById('category'),t=document.getElementById('tone');
+ c.innerHTML="";Object.keys(m.categories).forEach(k=>{let o=document.createElement('option');o.textContent=k;o.value=k;c.appendChild(o)});
+ t.innerHTML="";m.tones.forEach(x=>{let o=document.createElement('option');o.textContent=x;if(x==='Dramatic')o.selected=true;t.appendChild(o)});
+ document.getElementById('animals').value=m.defaultAnimals;
 }
-let currentMode='wildlife';
-populate(currentMode);
+let mode='wildlife';populate(mode);
+document.getElementById('mode').onchange=e=>{mode=e.target.value;populate(mode)};
 
-// Mode switch
-el('mode').addEventListener('change',(e)=>{currentMode=e.target.value; populate(currentMode); el('out').value=''})
+function sample(a){return a[Math.floor(Math.random()*a.length)]}
 
-// Image detection (lazy-load TFJS)
-let mobilenetModel=null;
-async function ensureModel(){
-  if(mobilenetModel) return mobilenetModel;
-  await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js';s.onload=res;s.onerror=()=>rej(new Error('tfjs load fail'));document.head.appendChild(s)});
-  await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0';s.onload=res;s.onerror=()=>rej(new Error('mobilenet load fail'));document.head.appendChild(s)});
-  mobilenetModel = await mobilenet.load();
-  return mobilenetModel;
-}
-el('img').addEventListener('change', async (e)=>{
-  const f=e.target.files[0]; if(!f) return;
-  const url=URL.createObjectURL(f);
-  const thumb=el('thumb'); thumb.src=url; thumb.style.display='block';
-  try{
-    const model = await ensureModel();
-    const img = new Image();
-    img.onload = async ()=>{
-      const preds = await model.classify(img);
-      const words = preds.map(p=>p.className.split(',')[0].toLowerCase());
-      const pick = [...new Set(words)].slice(0,3).join(', ');
-      el('animals').value = el('animals').value ? (el('animals').value + ', ' + pick) : pick;
-    };
-    img.src = url;
-  }catch(err){ console.warn(err); /* fail silently */ }
-});
-
-// Build one-paragraph English prompt + 3 titles
-function buildOutput(){
-  const category = el('category').value; // English key
-  const tone = el('tone').value;         // English key
-  const biome = el('biome').value;       // English phrase
-  const animals = (el('animals').value||'').toLowerCase();
-
-  // Wildlife roles
-  const PRED = animals.match(/lion|lions|leopard|hyena|hyenas|cheetah|coyote|fox|wild dog/)?.[0] || (currentMode==='wildlife' ? 'lions' : 'puppy');
-  const PREY = animals.match(/zebra|antelope|gazelle|calf|dog|cat|warthog|deer/)?.[0] || (currentMode==='wildlife' ? 'prey' : 'toy');
-
-  let sentence;
-  if(currentMode==='wildlife'){
-    const tpl = TPL.wildlife[category] || TPL.wildlife["Predator Hunt"];
-    sentence = sample(tpl).replaceAll("{PRED}", PRED).replaceAll("{PREY}", PREY).replaceAll("{BIOME}", biome);
-  }else{
-    // Pets: choose PET1/PET2
-    const PET1 = animals.match(/cat|kitten|puppy|dog|hamster|parrot|turtle|rabbit|corgi|poodle|golden retriever/)?.[0] || "puppy";
-    const PET2 = animals.match(/cat|kitten|puppy|dog|hamster|parrot|turtle|rabbit|corgi|poodle|golden retriever/)?.[0] || "cat";
-    const tpl = TPL.pet[category] || TPL.pet["Toy Antics"];
-    sentence = sample(tpl).replaceAll("{PET1}", PET1).replaceAll("{PET2}", PET2);
-  }
-
-  // Force 10s 9:16 implied cues already in templates (slow motion, camera tracks low, etc.)
-
-  // Title ideas (tone-aware)
-  const pool = TITLE[tone] || ["The Chase","Wild Clash","Untamed"];
-  function pick3(list){
-    const copy=[...list]; const out=[];
-    while(out.length<3 && copy.length){ out.push(copy.splice(Math.floor(Math.random()*copy.length),1)[0]); }
-    return out;
-  }
-  const titles = pick3(pool);
-
-  return `Prompt:\n${sentence}\n\nTitle ideas:\n1. ${titles[0]}\n2. ${titles[1]}\n3. ${titles[2]}`;
+function enhance(scene,intensity,tone){
+ if(intensity==="Extreme"){
+   scene=scene.replace(/lunges|charges|leaps|bursts|slips|runs|bolts/g,x=>{
+     const m={lunges:"explodes forward",charges:"smashes through",leaps:"launches upward",bursts:"erupts from",slips:"crashes",runs:"dashes violently",bolts:"smashes through bushes"};
+     return m[x]||x;
+   });
+   if(!scene.includes("cut to"))scene+=" Cut to a close-up; camera shakes slightly.";
+   if(!scene.includes("lingers"))scene+=" The camera lingers as echoes fade in slow motion.";
+ }
+ if(tone==="Dramatic" && intensity==="Extreme"){
+   scene="Sunlight flashes across the water as the camera jolts; "+scene;
+ }
+ return scene;
 }
 
-el('gen').addEventListener('click', ()=>{
-  el('out').value = buildOutput();
-  el('gen').animate([{transform:'scale(1)'},{transform:'scale(.98)'},{transform:'scale(1)'}],{duration:180});
-});
-el('copy').addEventListener('click', async ()=>{
-  const t = el('out').value.trim(); if(!t){alert('請先產生內容'); return;}
-  await navigator.clipboard.writeText(t); alert('已複製 Prompt 與標題');
-});
-el('save').addEventListener('click', ()=>{
-  const blob = new Blob([el('out').value||''], {type:'text/plain'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'animal_prompt.txt'; a.click();
-});
-el('reset').addEventListener('click', ()=>{
-  populate(currentMode); el('out').value=''; el('thumb').style.display='none';
-});
+function build(o){
+ const m=data[o.mode];const biome="backyard";const tone=o.tone;const intensity=o.intensity;
+ const animals=o.animals.toLowerCase();
+ const PRED=animals.match(/jaguar|leopard|fox|hyena|coyote/)?animals.match(/jaguar|leopard|fox|hyena|coyote/)[0]:sample(["jaguar","leopard","fox","hyena","coyote"]);
+ const PET=animals.match(/dog|retriever|husky|corgi|cat/)?animals.match(/dog|retriever|husky|corgi|cat/)[0]:sample(["golden retriever","husky","corgi"]);
+ let scene=m.categories[o.category];
+ scene=scene.replaceAll("{PRED}",PRED).replaceAll("{PREY}","prey").replaceAll("{PET}",PET).replaceAll("{PET1}",PET).replaceAll("{PET2}","cat").replaceAll("{BIOME}",biome);
+ scene=enhance(scene,intensity,tone);
+ const titles={
+  "Epic":["Savanna Fury","Legend Awakens","Unstoppable Chase"],
+  "Tense":["Edge of Survival","Close Call","On the Brink"],
+  "Dramatic":["The Clash","Wild Retreat","Backyard Showdown"],
+  "Cute":["Playtime Joy","Tiny Legends","Sunny Chaos"]
+ }[tone]||["Wild Moment","The Encounter","Nature Clash"];
+ return `Prompt:\n${scene}\n\nTitle ideas:\n1. ${titles[0]}\n2. ${titles[1]}\n3. ${titles[2]}`;
+}
+
+document.getElementById('gen').onclick=()=>{
+ const toneSel=document.getElementById('tone').value;
+ const intensitySel=document.getElementById('intensity').value;
+ let tone=toneSel;
+ if(intensitySel==="Extreme")tone="Dramatic";
+ const o={mode,tone,animals:document.getElementById('animals').value,category:document.getElementById('category').value,intensity:intensitySel};
+ document.getElementById('out').value=build(o);
+};
+document.getElementById('copy').onclick=async()=>{await navigator.clipboard.writeText(document.getElementById('out').value);alert('已複製英文 Prompt');};
+document.getElementById('save').onclick=()=>{
+ const blob=new Blob([document.getElementById('out').value],{type:'text/plain'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='animal_prompt.txt';a.click();
+};
 </script>
 </body>
 </html>
