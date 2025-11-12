@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI 動物短片提示產生器 v3.1（Viral Real Footage Edition）</title>
+<title>AI 動物短片提示產生器 v3.2（Viral Title Mode）</title>
 <style>
 body{font-family:"Noto Sans TC",sans-serif;background:#0b0b0c;color:#e9eef3;margin:0}
 header{background:#111316;padding:16px;border-bottom:1px solid #222}
@@ -13,32 +13,37 @@ main{padding:16px;max-width:1200px;margin:auto}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
 .card{background:#15161a;border:1px solid #222;border-radius:16px;padding:12px;display:flex;flex-direction:column}
 .card h3{margin:0 0 8px 0;font-size:16px}
-textarea{flex:1;min-height:280px;background:#0f1114;color:#e9eef3;border:1px solid #2b3340;border-radius:10px;padding:10px;resize:none}
+textarea{flex:1;min-height:220px;background:#0f1114;color:#e9eef3;border:1px solid #2b3340;border-radius:10px;padding:10px;resize:none}
 .row{display:flex;gap:8px;margin-top:8px}
 .sm{flex:1;background:#222733}
-.meta{font-size:12px;color:#9fb2c8;margin-top:6px;line-height:1.45}
+ul{margin:6px 0 0 14px;padding:0;font-size:13px;color:#a8bad1;line-height:1.45}
+ul li{margin-bottom:4px;list-style:"🔥 "}
+.meta{font-size:12px;color:#8fa2ba;margin-top:4px}
 </style>
 </head>
 <body>
-<header><h1>📹 AI 動物短片提示產生器 v3.1（Viral Real Footage Edition）</h1></header>
+<header><h1>📹 AI 動物短片提示產生器 v3.2（Viral Title Mode）</h1></header>
 <main>
-<button id="genAll" class="btn">⚡ 一鍵生成三組「真實爆紅感」Sora2 Prompt</button>
+<button id="genAll" class="btn">⚡ 一鍵生成三組「真實爆紅感」Sora2 Prompt + Shorts 標題</button>
 
 <div class="grid">
   <div class="card">
     <h3>🎞️ 劇情 1</h3>
     <textarea id="out1"></textarea>
-    <div class="row"><button class="btn sm" onclick="copyOne('out1')">📋 複製此段</button></div>
+    <ul id="titles1"></ul>
+    <div class="row"><button class="btn sm" onclick="copyOne('out1','titles1')">📋 複製此段＋標題</button></div>
   </div>
   <div class="card">
     <h3>🎞️ 劇情 2</h3>
     <textarea id="out2"></textarea>
-    <div class="row"><button class="btn sm" onclick="copyOne('out2')">📋 複製此段</button></div>
+    <ul id="titles2"></ul>
+    <div class="row"><button class="btn sm" onclick="copyOne('out2','titles2')">📋 複製此段＋標題</button></div>
   </div>
   <div class="card">
     <h3>🎞️ 劇情 3</h3>
     <textarea id="out3"></textarea>
-    <div class="row"><button class="btn sm" onclick="copyOne('out3')">📋 複製此段</button></div>
+    <ul id="titles3"></ul>
+    <div class="row"><button class="btn sm" onclick="copyOne('out3','titles3')">📋 複製此段＋標題</button></div>
   </div>
 </div>
 </main>
@@ -71,7 +76,7 @@ const captions=[
   "nobody would believe this"
 ];
 
-function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
 
 function makePrompt(){
   const tone=pick(tones);
@@ -86,20 +91,38 @@ function makePrompt(){
   const mid=`Then ${trig}, and suddenly ${react}.`;
   const end=`${tone} tone, single take, handheld phone footage vibe, no cuts. Looks totally real.`;
 
-  return `${intro}\n${mid}\n${end}`;
+  return {prompt:`${intro}\n${mid}\n${end}`,pred,pet};
+}
+
+function makeTitles(pred,pet){
+  const funny=[
+    `${pred.charAt(0).toUpperCase()+pred.slice(1)} panics after one bark 😂`,
+    `${pet.charAt(0).toUpperCase()+pet.slice(1)} didn’t even move — the ${pred} slipped 😭`,
+    `They both freaked out 💀`,
+  ];
+  const real=[
+    `Real backyard footage? You decide.`,
+    `Caught on camera — too perfect to be fake.`
+  ];
+  return [...funny,...real];
+}
+
+function fillCard(num){
+  const {prompt,pred,pet}=makePrompt();
+  const titles=makeTitles(pred,pet);
+  document.getElementById(`out${num}`).value=prompt;
+  document.getElementById(`titles${num}`).innerHTML=titles.map(t=>`<li>${t}</li>`).join("");
 }
 
 function generateAll(){
-  document.getElementById('out1').value=makePrompt();
-  document.getElementById('out2').value=makePrompt();
-  document.getElementById('out3').value=makePrompt();
+  fillCard(1); fillCard(2); fillCard(3);
 }
 
-function copyOne(id){
-  const el=document.getElementById(id);
-  el.select();el.setSelectionRange(0,99999);
-  navigator.clipboard.writeText(el.value);
-  alert("已複製！");
+function copyOne(tid,lid){
+  const text=document.getElementById(tid).value;
+  const titles=document.getElementById(lid).innerText;
+  navigator.clipboard.writeText(text+"\n\nTitles:\n"+titles);
+  alert("已複製 Prompt＋標題！");
 }
 
 document.getElementById("genAll").onclick=generateAll;
