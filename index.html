@@ -3,228 +3,106 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI 動物短片提示產生器 v3.0（USA Realistic 三欄版）</title>
+<title>AI 動物短片提示產生器 v3.1（Viral Real Footage Edition）</title>
 <style>
-  body{font-family:"Noto Sans TC",sans-serif;background:#0b0b0c;color:#e9eef3;margin:0}
-  header{background:#111316;padding:16px;border-bottom:1px solid #222}
-  h1{margin:0;font-size:20px}
-  main{padding:16px;max-width:1200px;margin:auto}
-  .controls{margin-bottom:12px}
-  .btn{background:linear-gradient(135deg,#0891b2,#2563eb);color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;width:100%}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
-  .card{background:#15161a;border:1px solid #222;border-radius:16px;padding:12px;display:flex;flex-direction:column}
-  .card h3{margin:0 0 8px 0;font-size:16px}
-  textarea{flex:1;min-height:280px;background:#0f1114;color:#e9eef3;border:1px solid #2b3340;border-radius:10px;padding:10px;resize:none}
-  .row{display:flex;gap:8px;margin-top:8px}
-  .sm{flex:1;background:#222733}
-  .meta{font-size:12px;color:#9fb2c8;margin-top:6px;line-height:1.45}
+body{font-family:"Noto Sans TC",sans-serif;background:#0b0b0c;color:#e9eef3;margin:0}
+header{background:#111316;padding:16px;border-bottom:1px solid #222}
+h1{margin:0;font-size:20px}
+main{padding:16px;max-width:1200px;margin:auto}
+.btn{background:linear-gradient(135deg,#0891b2,#2563eb);color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.card{background:#15161a;border:1px solid #222;border-radius:16px;padding:12px;display:flex;flex-direction:column}
+.card h3{margin:0 0 8px 0;font-size:16px}
+textarea{flex:1;min-height:280px;background:#0f1114;color:#e9eef3;border:1px solid #2b3340;border-radius:10px;padding:10px;resize:none}
+.row{display:flex;gap:8px;margin-top:8px}
+.sm{flex:1;background:#222733}
+.meta{font-size:12px;color:#9fb2c8;margin-top:6px;line-height:1.45}
 </style>
 </head>
 <body>
-<header><h1>🐾 AI 動物短片提示產生器 v3.0（USA Realistic 三欄版）</h1></header>
+<header><h1>📹 AI 動物短片提示產生器 v3.1（Viral Real Footage Edition）</h1></header>
 <main>
-  <div class="controls">
-    <button id="genAll" class="btn">⚡ 一鍵生成三組真實動物 Sora2 Prompt（USA 常見組合）</button>
-  </div>
+<button id="genAll" class="btn">⚡ 一鍵生成三組「真實爆紅感」Sora2 Prompt</button>
 
-  <div class="grid">
-    <div class="card">
-      <h3>劇情 1</h3>
-      <textarea id="out1" placeholder="Prompt 1..."></textarea>
-      <div class="row">
-        <button class="btn sm" onclick="copyOne('out1')">📋 複製此段</button>
-      </div>
-      <div class="meta" id="meta1"></div>
-    </div>
-    <div class="card">
-      <h3>劇情 2</h3>
-      <textarea id="out2" placeholder="Prompt 2..."></textarea>
-      <div class="row">
-        <button class="btn sm" onclick="copyOne('out2')">📋 複製此段</button>
-      </div>
-      <div class="meta" id="meta2"></div>
-    </div>
-    <div class="card">
-      <h3>劇情 3</h3>
-      <textarea id="out3" placeholder="Prompt 3..."></textarea>
-      <div class="row">
-        <button class="btn sm" onclick="copyOne('out3')">📋 複製此段</button>
-      </div>
-      <div class="meta" id="meta3"></div>
-    </div>
+<div class="grid">
+  <div class="card">
+    <h3>🎞️ 劇情 1</h3>
+    <textarea id="out1"></textarea>
+    <div class="row"><button class="btn sm" onclick="copyOne('out1')">📋 複製此段</button></div>
   </div>
+  <div class="card">
+    <h3>🎞️ 劇情 2</h3>
+    <textarea id="out2"></textarea>
+    <div class="row"><button class="btn sm" onclick="copyOne('out2')">📋 複製此段</button></div>
+  </div>
+  <div class="card">
+    <h3>🎞️ 劇情 3</h3>
+    <textarea id="out3"></textarea>
+    <div class="row"><button class="btn sm" onclick="copyOne('out3')">📋 複製此段</button></div>
+  </div>
+</div>
 </main>
 
 <script>
-/* ===== 基礎資料：只用美國常見組合 ===== */
-const tones = ["Dramatic","Epic","Tense"]; // 隨機
-const cameraStyles = [
-  "cinematic handheld",
-  "low-angle tracking",
-  "hidden camera security footage style"
+const animals = {
+  predator:["coyote","fox","raccoon","bobcat","deer","black bear"],
+  pet:["dog","corgi","husky","golden retriever","cat","rooster"]
+};
+const tones=["Dramatic","Epic","Tense"];
+const triggers=["dog barks","metal barrel falls","bird flaps suddenly","water splashes","screen door bangs"];
+const scenes=[
+  {place:"backyard security camera","emoji":"🏡"},
+  {place:"poolside patio","emoji":"🏊"},
+  {place:"driveway cam","emoji":"🚗"},
+  {place:"farmyard","emoji":"🐓"},
+  {place:"forest edge","emoji":"🌲"}
 ];
-const triggers = [
-  {k:"Bark", line: p => `The ${p.pet} suddenly barks, then`},
-  {k:"Loud Noise", line: _ => `Suddenly a loud metallic clatter rings out, then`},
-  {k:"Water Splash", line: _ => `Suddenly water splashes from the edge, then`},
-  {k:"Sudden Motion", line: _ => `A burst of sudden motion from nearby leaves startles it, then`}
+const reactions=[
+  "the predator jumps back and slips like crazy",
+  "the animal panics, sliding off the patio",
+  "it freezes for a second then bolts away in fear",
+  "the moment looks totally real, caught by accident"
 ];
-const intensities = ["Mild","Normal","Extreme"]; // 反轉強度
-
-/* 場景預設（美國郊區） */
-const presets = [
-  {
-    name: "Suburban Backyard",
-    places: ["quiet suburban yard","wooden fence","patio","grass lawn"],
-    predators: ["coyote","fox","raccoon","bobcat","black bear","deer"],
-    pets: ["golden retriever","husky","corgi","cat"],
-    typical: [
-      ["coyote","dog"],["coyote","cat"],["fox","rooster"],["fox","cat"],
-      ["raccoon","cat"],["bobcat","dog"],["deer","dog"],["deer","cat"]
-    ]
-  },
-  {
-    name: "Poolside Patio",
-    places: ["backyard swimming pool","poolside patio","wet tiles"],
-    predators: ["coyote","raccoon","bobcat","deer","black bear"],
-    pets: ["golden retriever","husky","corgi","cat"],
-    typical: [["coyote","dog"],["raccoon","cat"],["bobcat","dog"],["deer","dog"]]
-  },
-  {
-    name: "Farmyard",
-    places: ["small farmyard","chicken coop","gravel path","barn fence"],
-    predators: ["fox","coyote","raccoon","bobcat"],
-    pets: ["rooster","cat","dog"],
-    typical: [["fox","rooster"],["raccoon","cat"],["coyote","dog"],["bobcat","dog"]]
-  },
-  {
-    name: "Forest Edge",
-    places: ["forest edge","leafy clearing","dirt path"],
-    predators: ["bobcat","black bear","coyote","fox","deer"],
-    pets: ["dog","cat"],
-    typical: [["bobcat","dog"],["coyote","dog"],["fox","cat"],["deer","dog"]]
-  },
-  {
-    name: "Driveway",
-    places: ["driveway","front yard","garage area"],
-    predators: ["coyote","raccoon","black bear","fox","bobcat"],
-    pets: ["dog","cat"],
-    typical: [["coyote","dog"],["raccoon","cat"],["black bear","dog"],["fox","cat"]]
-  }
+const captions=[
+  "camera caught this",
+  "caught on cam",
+  "looks too real 😂",
+  "unbelievable moment",
+  "nobody would believe this"
 ];
 
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
-/* 依場景產生合理的掠食者與對手 */
-function pickActors(preset){
-  // 7成機率使用 typical 配對，3成自由選
-  if (Math.random()<0.7) {
-    const [predKey, petKey] = pick(preset.typical);
-    return mapKeysToNames(predKey, petKey);
-  } else {
-    const pred = pick(preset.predators);
-    const pet = pick(preset.pets);
-    return { predator: normalizePred(pred), pet: normalizePet(pet) };
-  }
-}
-
-function mapKeysToNames(predKey, petKey){
-  return { predator: normalizePred(predKey), pet: normalizePet(petKey) };
-}
-function normalizePred(k){
-  const m = {
-    "black bear":"black bear",
-    "bobcat":"bobcat",
-    "coyote":"coyote",
-    "fox":"fox",
-    "raccoon":"raccoon",
-    "deer":"deer"
-  };
-  return m[k] || k;
-}
-function normalizePet(k){
-  const m = {
-    "dog":"dog",
-    "cat":"cat",
-    "rooster":"rooster",
-    "golden retriever":"golden retriever",
-    "husky":"husky",
-    "corgi":"corgi"
-  };
-  return m[k] || k;
-}
-
-/* 依反轉強度給動作詞 */
-function reversalMoves(intensity, predator){
-  if (intensity==="Mild") {
-    return `${predator} flinches, steps back, and trots away`;
-  } else if (intensity==="Extreme") {
-    return `${predator} jumps back, slips hard, tumbles over a chair, and bolts off in panic`;
-  }
-  // Normal
-  return `${predator} jumps back, slips on the ground, and scrambles away`;
-}
-
-/* 依鏡頭風格調整敘述 */
-function cameraLine(style){
-  if (style.includes("security")) {
-    return "captured in hidden camera security footage style";
-  }
-  if (style.includes("low-angle")) {
-    return "the camera tracks low near the ground";
-  }
-  // cinematic handheld
-  return "the camera shakes slightly in cinematic handheld motion";
-}
-
-/* 產生單一 Prompt（英文，三句＋固定結尾） */
 function makePrompt(){
-  const preset   = pick(presets);
-  const place    = pick(preset.places);
-  const tone     = pick(tones);
-  const style    = pick(cameraStyles);
-  const trig     = pick(triggers);
-  const level    = pick(intensities);
-  const {predator, pet} = pickActors(preset);
+  const tone=pick(tones);
+  const scene=pick(scenes);
+  const pred=pick(animals.predator);
+  const pet=pick(animals.pet);
+  const trig=pick(triggers);
+  const react=pick(reactions);
+  const cap=pick(captions);
 
-  // 開場（0-3s）
-  const s1 = `Soft morning sunlight glows over a ${place} where a ${pet} rests quietly.`;
+  const intro=`${scene.emoji} ${cap.toUpperCase()} — a ${pred} sneaks near a ${pet} in someone's ${scene.place}.`;
+  const mid=`Then ${trig}, and suddenly ${react}.`;
+  const end=`${tone} tone, single take, handheld phone footage vibe, no cuts. Looks totally real.`;
 
-  // 張力（4-6s）
-  const cam = cameraLine(style);
-  const s2 = `From behind the bushes, a ${predator} cautiously steps forward; ${cam} as tension builds.`;
-
-  // 反轉（7-9s），加入 then/after/suddenly 連接詞
-  const move = reversalMoves(level, `the ${predator}`);
-  const s3 = `${trig.line({pet})} after a heartbeat, ${move} as leaves scatter in slow motion.`;
-
-  // 結尾（10s）
-  const end = `Perfect for a 10-second vertical cinematic shot filmed in a single continuous take, no cuts.`;
-
-  const prompt = `${s1}\n${s2}\n${s3}\n${end}`;
-  const meta = `Location: ${preset.name} ｜ Tone: ${tone} ｜ Camera: ${style} ｜ Trigger: ${trig.k} ｜ Reversal: ${level} ｜ Pair: ${predator} vs ${pet}`;
-  return {prompt, meta};
+  return `${intro}\n${mid}\n${end}`;
 }
 
-/* 生成三組，填入三欄 */
 function generateAll(){
-  const a = makePrompt(), b = makePrompt(), c = makePrompt();
-  document.getElementById('out1').value = a.prompt;
-  document.getElementById('meta1').innerText = a.meta;
-  document.getElementById('out2').value = b.prompt;
-  document.getElementById('meta2').innerText = b.meta;
-  document.getElementById('out3').value = c.prompt;
-  document.getElementById('meta3').innerText = c.meta;
+  document.getElementById('out1').value=makePrompt();
+  document.getElementById('out2').value=makePrompt();
+  document.getElementById('out3').value=makePrompt();
 }
 
 function copyOne(id){
-  const el = document.getElementById(id);
-  el.select(); el.setSelectionRange(0, 99999);
+  const el=document.getElementById(id);
+  el.select();el.setSelectionRange(0,99999);
   navigator.clipboard.writeText(el.value);
-  alert('已複製！');
+  alert("已複製！");
 }
 
-document.getElementById('genAll').onclick = generateAll;
+document.getElementById("genAll").onclick=generateAll;
 </script>
 </body>
 </html>
