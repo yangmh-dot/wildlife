@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sora 2 寫實陷阱短片產生器</title>
+    <title>Sora 2 極致寫實產生器 (V4)</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace; /* 改用等寬字體強調原始感 */
+            background-color: #0d0d0d;
+            color: #ccc;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -18,125 +18,110 @@
             padding: 20px;
         }
         .container {
-            background-color: #1e1e1e;
+            background-color: #1a1a1a;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            max-width: 650px;
-            width: 100%;
-            text-align: center;
             border: 1px solid #333;
+            max-width: 700px;
+            width: 100%;
+            text-align: left;
         }
-        h1 { color: #ff5722; margin-bottom: 10px; letter-spacing: 1px; }
-        p { color: #888; font-size: 0.9em; margin-bottom: 25px; }
+        h1 { color: #00ff41; margin-bottom: 5px; font-size: 1.5em; text-transform: uppercase; }
+        p { color: #666; font-size: 0.8em; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 10px;}
         
         #output-box {
             background-color: #000;
-            border-left: 4px solid #ff5722;
-            padding: 25px;
-            font-size: 1.15em;
-            line-height: 1.6;
-            min-height: 160px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 25px;
-            color: #eee;
-            text-align: left;
-            font-family: 'Consolas', 'Monaco', monospace;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 20px;
+            font-size: 1.1em;
+            line-height: 1.4;
+            min-height: 180px;
+            margin-bottom: 20px;
+            white-space: pre-wrap; /* 保留換行 */
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
         }
 
         .btn {
-            background-color: #ff5722;
+            background-color: #333;
             color: #fff;
-            border: none;
-            padding: 12px 30px;
-            font-size: 1em;
-            font-weight: bold;
-            border-radius: 5px;
+            border: 1px solid #555;
+            padding: 10px 25px;
+            font-size: 0.9em;
             cursor: pointer;
-            transition: all 0.2s;
-            margin: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-right: 10px;
+            font-family: inherit;
         }
-        .btn:hover { background-color: #ff7043; transform: translateY(-2px); }
-        .btn:active { transform: translateY(0); }
-        
-        .btn-copy { background-color: #333; border: 1px solid #555; }
-        .btn-copy:hover { background-color: #444; border-color: #666; }
+        .btn:hover { background-color: #444; border-color: #888; }
+        .btn-primary { background-color: #005c17; border-color: #008f24; }
+        .btn-primary:hover { background-color: #007a1f; }
 
-        .tag { font-size: 0.75em; color: #555; margin-top: 20px; }
+        .tag { font-size: 0.7em; color: #444; margin-top: 15px; text-align: center;}
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Sora 2 寫實陷阱生成器 (V3)</h1>
-    <p>專注於「觸發瞬間」的張力與寫實物理反應</p>
+    <h1>Raw Footage Generator V4</h1>
+    <p>模擬真實器材拍攝效果：GoPro / Trail Cam / Handheld</p>
     
-    <div id="output-box">準備生成...</div>
+    <div id="output-box">系統就緒...</div>
 
     <div>
-        <button class="btn" onclick="generatePrompt()">⚡ 生成觸發情節</button>
-        <button class="btn btn-copy" onclick="copyToClipboard()">📋 複製</button>
+        <button class="btn btn-primary" onclick="generatePrompt()">🔴 生成錄影 Prompt</button>
+        <button class="btn" onclick="copyToClipboard()">複製內容</button>
     </div>
-    <div class="tag">Focus: Tension, Contact, Physics, Realism</div>
+    <div class="tag">Keywords: Raw, Handheld, ISO noise, Imperfect focus</div>
 </div>
 
 <script>
+    // 1. 攝影風格：決定畫面的「質感」
+    const cameraStyles = [
+        "Handheld documentary footage with slight camera shake.", 
+        "Low-angle GoPro footage placed on the ground.", 
+        "Hidden trail camera footage (night vision style if dark).", 
+        "Telephoto zoom lens shot through bushes, slight focus hunting.", 
+        "High-resolution amateur wildlife photography style."
+    ];
+
+    // 2. 動物狀態：加入不完美的細節
     const animals = [
-        "A sleek Cheetah", "A muscular Bengal Tiger", "A hungry Grey Wolf", 
-        "A cautious Red Fox", "A large Grizzly Bear", "A solitary Jaguar", 
-        "A spotted Hyena", "A wild Boar"
+        "a scarred, dirty Bengal Tiger", 
+        "a wet, matted Grey Wolf", 
+        "a nervous, twitching Red Fox", 
+        "a heavy breathing, muddy Wild Boar", 
+        "a dusty, prowling Leopard"
     ];
 
+    // 3. 環境與光影：強調自然與雜亂
     const environments = [
-        "in a sun-drenched dry savanna", "deep within a misty pine forest", 
-        "on a muddy jungle floor with scattered leaves", "in a rocky mountain terrain", 
-        "in a quiet, snow-covered clearing"
+        "in a dense thicket with harsh, dappled sunlight", 
+        "on a gray, overcast day in a muddy clearing", 
+        "in a dusty dry riverbed with flying insects", 
+        "under the heavy rain in a dark forest"
     ];
 
-    // 寫實風格的陷阱，強調材質
+    // 4. 陷阱：去精緻化，強調危險與生鏽
     const traps = [
-        "a heavy, rusted iron bear trap hidden in the grass",
-        "a tension-based wooden snare trap tied to a tree",
-        "a vertical board studded with sharp, rusty nails",
-        "a concealed pitfall covered with thin twigs and leaves",
-        "a heavy log suspended by a fraying rope",
-        "a mechanical metal jaw trap anchored to the ground"
+        "an old, rusted mechanical trap half-buried in dirt",
+        "a crude wooden spike trap camouflaged with dead leaves",
+        "a taut wire snare hidden in the tall grass",
+        "a heavy metal cage with peeling paint and rust"
     ];
 
-    const baits = [
-        "a fresh, bloody steak",
-        "a dead rabbit",
-        "a piece of raw meat tied to a string",
-        "a shimmering fresh fish"
+    // 5. 動作：具體的物理互動
+    const interactions = [
+        "bites the bait, pulling the string taut instantly",
+        "steps on the edge, causing the mechanism to shift and creak",
+        "noses the bait, accidentally bumping the trigger",
+        "paws at the meat, making the heavy trap shake visibly"
     ];
 
-    // 關鍵：具體的接觸動作
-    const actions = [
-        "tentatively extends a paw and taps the",
-        "opens its jaws and bites down firmly on the",
-        "uses its claw to hook and pull the",
-        "nudges the trigger mechanism while sniffing the",
-        "steps directly onto the edge of the trap to reach the"
-    ];
-
-    // 關鍵：陷阱的物理反應
-    const reactions = [
-        "The trigger plate depresses slightly with a metallic click.",
-        "The rope pulls taut instantly, and the mechanism shudders.",
-        "Dust falls from the trap as the spring begins to uncoil.",
-        "The wooden support creaks and starts to slip.",
-        "The metal jaws twitch, barely holding back the tension."
-    ];
-
-    const styles = [
-        "Photorealistic 8k, extreme close-up on the contact point, high shutter speed.",
-        "Cinematic lighting, shallow depth of field focused on the bait, palpable tension.",
-        "National Geographic style, highly detailed textures of fur and rust, realistic physics.",
-        "Slow motion capture of the moment of impact, sharp focus, dramatic shadows."
+    // 6. 結尾修飾詞：強制寫實
+    const realifiers = [
+        "Raw footage, natural lighting, high ISO noise, no CGI, authentic texture.",
+        "4k video, sharp details, dust particles in air, realistic physics.",
+        "Documentary style, neutral color grading, harsh shadows, hyper-realistic.",
+        "Found footage style, believable movement, unpolished look."
     ];
 
     function getRandom(arr) {
@@ -144,16 +129,15 @@
     }
 
     function generatePrompt() {
+        const camera = getRandom(cameraStyles);
         const animal = getRandom(animals);
         const env = getRandom(environments);
         const trap = getRandom(traps);
-        const bait = getRandom(baits);
-        const action = getRandom(actions);
-        const reaction = getRandom(reactions);
-        const style = getRandom(styles);
+        const action = getRandom(interactions);
+        const realifier = getRandom(realifiers);
 
-        // 組合句子：環境 -> 陷阱 -> 動作(接觸誘餌) -> 物理反應 -> 風格
-        const prompt = `${animal} stands ${env}. Before it lies ${trap}. The animal ${action} ${bait}. As it makes contact, ${reaction} ${style}`;
+        // 組合邏輯：攝影機 -> 環境與主體 -> 陷阱位置 -> 互動 -> 寫實修飾
+        const prompt = `${camera} ${animal} is moving ${env}. Directly in front is ${trap}, baited with raw meat. Close up shot. The animal ${action}. ${realifier}`;
         
         document.getElementById('output-box').innerText = prompt;
     }
@@ -161,7 +145,7 @@
     function copyToClipboard() {
         const text = document.getElementById('output-box').innerText;
         navigator.clipboard.writeText(text).then(() => {
-            alert("已複製 Prompt！");
+            alert("已複製！貼上到 Sora 試試看。");
         });
     }
 
