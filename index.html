@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sora 2 高亮寫實雙語產生器 (V5)</title>
+    <title>Sora 2 正規寫實紀錄片生成器 (V6)</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5; /* 改為淺色背景，代表明亮感 */
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #e9ecef;
             color: #333;
             display: flex;
             flex-direction: column;
@@ -19,201 +19,213 @@
         }
         .container {
             background-color: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            max-width: 700px;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            max-width: 750px;
             width: 100%;
+            border-top: 5px solid #28a745; /* 綠色代表自然/正確 */
         }
         h1 { 
-            color: #2c3e50; 
-            margin-bottom: 5px; 
+            color: #333; 
+            margin-bottom: 8px; 
             text-align: center;
-            font-size: 1.5em;
+            font-size: 1.6em;
+            font-weight: 700;
         }
-        p.subtitle {
+        p.desc {
             text-align: center;
-            color: #7f8c8d;
-            font-size: 0.9em;
-            margin-bottom: 25px;
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 30px;
         }
 
-        /* 輸入框區域樣式 */
-        .prompt-group {
-            margin-bottom: 20px;
-            border: 1px solid #e1e4e8;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .prompt-header {
+        /* Prompt 顯示區 */
+        .prompt-box {
             background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .prompt-label {
+            background-color: #e9ecef;
+            color: #495057;
             padding: 8px 15px;
-            font-size: 0.85em;
+            font-size: 0.8em;
             font-weight: bold;
-            color: #555;
-            border-bottom: 1px solid #e1e4e8;
+            border-bottom: 1px solid #dee2e6;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .prompt-content {
-            padding: 15px;
-            font-size: 1.05em;
-            line-height: 1.5;
-            background-color: #fff;
-            min-height: 80px;
-            color: #2c3e50;
+        .prompt-text {
+            padding: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #212529;
+            min-height: 60px;
         }
 
-        /* 按鈕樣式 */
-        .btn-area {
-            text-align: center;
-            margin-top: 20px;
+        /* 按鈕區 */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
         }
         .btn {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 12px 30px;
+            padding: 12px 24px;
             font-size: 1em;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin: 0 5px;
-        }
-        .btn:hover { background-color: #0056b3; }
-        
-        .btn-copy {
-            background-color: transparent;
-            color: #007bff;
-            border: 1px solid #007bff;
-            padding: 4px 10px;
-            font-size: 0.8em;
+            font-weight: 600;
+            border: none;
             border-radius: 4px;
             cursor: pointer;
+            transition: background 0.2s;
         }
-        .btn-copy:hover { background-color: #e7f1ff; }
+        .btn-gen {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-gen:hover { background-color: #218838; }
+        
+        .btn-copy-sm {
+            background: #fff;
+            border: 1px solid #ccc;
+            font-size: 0.75em;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .btn-copy-sm:hover { background: #eee; }
 
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Bright Realism Generator V5</h1>
-    <p class="subtitle">自然光線 • 生活質感 • 雙語輸出</p>
+    <h1>Nature Documentary Generator (V6)</h1>
+    <p class="desc">正常、寫實、無誇大特效、純粹的生態紀錄風格</p>
     
-    <div class="prompt-group">
-        <div class="prompt-header">
-            ENGLISH PROMPT
-            <button class="btn-copy" onclick="copyText('en-out')">Copy English</button>
+    <div class="prompt-box">
+        <div class="prompt-label">
+            ENGLISH
+            <button class="btn-copy-sm" onclick="copyText('en-text')">Copy</button>
         </div>
-        <div class="prompt-content" id="en-out">Generating...</div>
+        <div class="prompt-text" id="en-text">Waiting...</div>
     </div>
 
-    <div class="prompt-group">
-        <div class="prompt-header">
-            中文提示詞
-            <button class="btn-copy" onclick="copyText('zh-out')">複製中文</button>
+    <div class="prompt-box">
+        <div class="prompt-label">
+            中文 (CHINESE)
+            <button class="btn-copy-sm" onclick="copyText('zh-text')">複製</button>
         </div>
-        <div class="prompt-content" id="zh-out">生成中...</div>
+        <div class="prompt-text" id="zh-text">等待生成...</div>
     </div>
 
-    <div class="btn-area">
-        <button class="btn" onclick="generatePrompt()">✨ 生成新情節 (Generate)</button>
+    <div class="controls">
+        <button class="btn btn-gen" onclick="generate()">🔄 生成新情節 (Generate)</button>
     </div>
 </div>
 
 <script>
-    // 為了做雙語對照，我們使用物件陣列
-    
-    const lighting = [
-        {en: "Bright sunny day, clear blue sky,", zh: "陽光明媚的晴天，湛藍的天空，"},
-        {en: "Soft morning sunlight filtering through trees,", zh: "柔和的晨光穿過樹林，"},
-        {en: "Golden hour lighting, warm and natural,", zh: "黃金時刻的光線，溫暖而自然，"},
-        {en: "High noon, strong contrast shadows,", zh: "正午時分，對比強烈的陰影，"},
-        {en: "Overcast but bright daylight,", zh: "多雲但明亮的白晝光線，"}
-    ];
-
+    // 1. 動物：只選常見且合理的野生動物
     const animals = [
-        {en: "a healthy Bengal Tiger", zh: "一隻健康的孟加拉虎"},
-        {en: "a sleek Cheetah", zh: "一隻毛色光亮的獵豹"},
-        {en: "a fluffy Red Fox", zh: "一隻毛茸茸的赤狐"},
-        {en: "a large Brown Bear", zh: "一隻巨大的棕熊"},
-        {en: "a cautious Grey Wolf", zh: "一隻謹慎的灰狼"},
-        {en: "a wild Boar", zh: "一隻野豬"}
+        {en: "A wild Grey Wolf", zh: "一隻野生的灰狼"},
+        {en: "A spotted Hyena", zh: "一隻斑點鬣狗"},
+        {en: "A Bengal Tiger", zh: "一隻孟加拉虎"},
+        {en: "A solitary Red Fox", zh: "一隻獨行的赤狐"},
+        {en: "A large Wild Boar", zh: "一隻巨大的野豬"},
+        {en: "A North American Grizzly Bear", zh: "一隻北美灰熊"},
+        {en: "A cautious Coyote", zh: "一隻謹慎的郊狼"}
     ];
 
+    // 2. 環境：普通的自然場景
     const environments = [
-        {en: "walking in a green grassy field", zh: "走在翠綠的草地上"},
-        {en: "standing on a dry dirt path", zh: "站在乾燥的泥土小徑上"},
-        {en: "moving through a bamboo forest", zh: "穿過一片竹林"},
-        {en: "exploring a rocky river bank", zh: "在佈滿岩石的河岸邊探索"},
-        {en: "prowling in a quiet backyard garden", zh: "在安靜的後花園裡徘徊"} // 加入一點生活感
+        {en: "wandering through a dense autumn forest", zh: "正穿梭在濃密的秋季森林中"},
+        {en: "walking across a snowy field", zh: "走過一片被雪覆蓋的田野"},
+        {en: "prowling in tall dry grass", zh: "在乾燥的高草叢中潛行"},
+        {en: "standing near a muddy river bank", zh: "站在泥濘的河岸邊"},
+        {en: "moving through a misty woodland", zh: "穿過霧氣瀰漫的林地"}
     ];
 
-    const traps = [
-        {en: "a clearly visible wooden box trap", zh: "一個清晰可見的木製箱型陷阱"},
-        {en: "a shiny metal cage trap", zh: "一個閃亮的金屬籠子陷阱"},
-        {en: "a simple rope snare on the ground", zh: "地面上一個簡單的繩索套索"},
-        {en: "a large animal carrier with the door open", zh: "一個門開著的大型動物運輸籠"}, // 更生活化
-        {en: "a heavy iron trap anchored to a stake", zh: "一個固定在樁上的重型鐵製陷阱"}
+    // 3. 陷阱與誘餌：正常、不起眼的設置
+    const setups = [
+        {
+            en: "It approaches a rusty metal cage trap containing a piece of raw meat.", 
+            zh: "它靠近一個裡面放著生肉塊的生鏽金屬籠子陷阱。"
+        },
+        {
+            en: "It finds a dead rabbit placed carefully on a pile of leaves, hiding a pitfall underneath.", 
+            zh: "它發現一隻死兔子被小心地放在落葉堆上，下面隱藏著一個陷阱坑。"
+        },
+        {
+            en: "It spots a fresh fish hanging from a string above a wooden box trap.", 
+            zh: "它看見一條新鮮的魚懸掛在一個木箱陷阱上方。"
+        },
+        {
+            en: "There is a piece of steak lying on the ground, surrounded by a concealed wire snare.", 
+            zh: "地上有一塊牛排，周圍隱藏著鋼絲套索。"
+        }
     ];
 
-    const baits = [
-        {en: "a fresh piece of steak", zh: "一塊新鮮的牛排"},
-        {en: "a whole raw chicken", zh: "一隻完整的生雞"},
-        {en: "a pile of dog food", zh: "一堆狗飼料"}, // 生活化
-        {en: "a hanging piece of meat", zh: "一塊懸掛著的肉"}
-    ];
-
+    // 4. 動作：單純的互動，沒有誇張特效
     const actions = [
-        {en: "steps on the trigger plate, causing it to click", zh: "踩到了觸發板，發出喀嚓一聲"},
-        {en: "bites the bait, pulling the string tight", zh: "咬住誘餌，將繩子瞬間拉緊"},
-        {en: "nudges the trap door, making it shake", zh: "輕推陷阱門，使其晃動"},
-        {en: "grabs the meat, triggering the mechanism", zh: "抓取肉塊，觸發了機關"}
+        {
+            en: "The animal sniffs the air cautiously and takes a small bite of the bait.", 
+            zh: "動物謹慎地嗅了嗅空氣，然後試探性地咬了一口誘餌。"
+        },
+        {
+            en: "The animal steps forward and nudges the bait with its nose.", 
+            zh: "動物走上前，用鼻子輕推了一下誘餌。"
+        },
+        {
+            en: "The animal extends a paw to touch the meat, triggering a small movement in the trap.", 
+            zh: "動物伸出爪子去碰觸肉塊，引發了陷阱的微小晃動。"
+        },
+        {
+            en: "The animal grabs the bait quickly, causing the trap mechanism to shake.", 
+            zh: "動物迅速咬住誘餌，導致陷阱機關震動了一下。"
+        }
     ];
 
-    // 結尾強調清晰度
+    // 5. 風格：強調真實感
     const styles = [
-        {en: "4k video, sharp focus, realistic colors, documentary footage.", zh: "4k 影片，對焦清晰，色彩寫實，紀錄片風格。"},
-        {en: "High definition, GoPro hero 10, clear visibility, real life texture.", zh: "高畫質，GoPro Hero 10 風格，視野清晰，真實生活質感。"},
-        {en: "Telephoto lens, shallow depth of field, crystal clear image.", zh: "長焦鏡頭，淺景深，畫面晶瑩剔透。"}
+        {en: "National Geographic documentary style, high resolution, realistic colors.", zh: "國家地理紀錄片風格，高解析度，寫實色彩。"},
+        {en: "Cinematic wildlife shot, 4k, sharp focus, natural lighting.", zh: "電影級野生動物鏡頭，4k，對焦清晰，自然光線。"},
+        {en: "Documentary footage, clear visibility, highly detailed texture.", zh: "紀錄片畫面，視野清晰，高細節質感。"}
     ];
 
     function getRandom(arr) {
         return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    function generatePrompt() {
-        const l = getRandom(lighting);
+    function generate() {
         const a = getRandom(animals);
         const e = getRandom(environments);
-        const t = getRandom(traps);
-        const b = getRandom(baits);
+        const setup = getRandom(setups);
         const act = getRandom(actions);
         const s = getRandom(styles);
 
-        // 組合英文
-        const enText = `${l.en} ${a.en} is ${e.en}. In front of it is ${t.en}, baited with ${b.en}. The animal ${act.en}. ${s.en}`;
+        // 英文組合：主詞 + 環境 + 發現陷阱 + 動作 + 風格
+        const enPrompt = `${a.en} is ${e.en}. ${setup.en} ${act.en} ${s.en}`;
         
-        // 組合中文
-        const zhText = `${l.zh} ${a.zh}正${e.zh}。在它面前是${t.zh}，放著${b.zh}作為誘餌。動物${act.zh}。${s.zh}`;
+        // 中文組合
+        const zhPrompt = `${a.zh}${e.zh}。${setup.zh}${act.zh} ${s.zh}`;
 
-        document.getElementById('en-out').innerText = enText;
-        document.getElementById('zh-out').innerText = zhText;
+        document.getElementById('en-text').innerText = enPrompt;
+        document.getElementById('zh-text').innerText = zhPrompt;
     }
 
-    function copyText(elementId) {
-        const text = document.getElementById(elementId).innerText;
+    function copyText(id) {
+        const text = document.getElementById(id).innerText;
         navigator.clipboard.writeText(text).then(() => {
-            // 簡單的回饋效果
-            alert("Copied! (已複製)");
+            alert("已複製 / Copied");
         });
     }
 
-    // 初始執行
-    generatePrompt();
+    // Init
+    generate();
 </script>
 
 </body>
